@@ -1,4 +1,6 @@
 import { dirname, resolve } from 'path';
+import { parse } from "hjson";
+import { readFileSync } from "fs";
 
 /*
 "baseUrl": ".",
@@ -34,7 +36,10 @@ export const mapPaths = (
   return dest;
 };
 
-export const loadConfig = (file: string): ITSConfig => {
+export const loadConfig = (file: string, encoding = "utf-8"): ITSConfig => {
+  const configContent = readFileSync(file, { encoding })
+  const parsedConfig = parse(configContent)
+
   const {
     extends: ext,
     compilerOptions: { baseUrl, outDir, paths } = {
@@ -42,9 +47,10 @@ export const loadConfig = (file: string): ITSConfig => {
       outDir: undefined,
       paths: undefined,
     },
-  } = require(file) as IRawTSConfig;
+  } = parsedConfig as IRawTSConfig;
 
   const config: ITSConfig = {};
+
   if (baseUrl) {
     config.baseUrl = baseUrl;
   }
